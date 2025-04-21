@@ -1,20 +1,18 @@
-use egui::{Theme, ThemePreference, Ui};
-
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-pub struct ShaderApp {
+pub struct App {
     pub max: i32,
     pub value: i32,
 }
 
-impl Default for ShaderApp {
+impl Default for App {
     fn default() -> Self {
         Self { max: 256, value: 1 }
     }
 }
 
-impl ShaderApp {
+impl App {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
@@ -30,7 +28,7 @@ impl ShaderApp {
     }
 }
 
-impl eframe::App for ShaderApp {
+impl eframe::App for App {
     /// Called by the frame work to save state before shutdown.
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
