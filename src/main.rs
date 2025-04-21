@@ -20,7 +20,7 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "TCG Bound",
         native_options,
-        Box::new(|cc| Ok(Box::new(tcg_bound::ShaderApp::new(cc)))),
+        Box::new(|cc| Ok(Box::new(tcg_bound::App::new(cc)))),
     )
 }
 
@@ -50,7 +50,7 @@ fn main() {
             .start(
                 canvas,
                 web_options,
-                Box::new(|cc| Ok(Box::new(shader_tool::ShaderApp::new(cc)))),
+                Box::new(|cc| Ok(Box::new(tcg_bound::App::new(cc)))),
             )
             .await;
 
