@@ -1,0 +1,55 @@
+name: Deploy web
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
+
+permissions:
+  contents: write # for committing to gh-pages branch
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy web
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          target: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "tcg-bound-"
+
+      - name: "Install wasmopt / binaryen"
+        run: |
+          sudo apt-get update && sudo apt-get install binaryen
+
+      - run: |
+          scripts/build_web.sh --release
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: tcg_bound
+          # this option will not maintain any history of your previous pages deployment
+          # set to false if you want all page build to be committed to your gh-pages branch history
+          single-commit: true
