@@ -8,13 +8,13 @@ cd "$script_path/.."
 
 ./scripts/setup_web.sh
 
-CRATE_NAME="tcg_bound"
+CRATE_NAME="tcg-bound"
 
 OPEN=false
 OPTIMIZE=false
 BUILD=debug
 BUILD_FLAGS=""
-WASM_OPT_FLAGS="-O2 --fast-math"
+WASM_OPT_FLAGS=(-O2 --fast-math)
 
 while test $# -gt 0; do
   case "$1" in
@@ -55,8 +55,8 @@ while test $# -gt 0; do
   esac
 done
 
-OUT_FILE_NAME="tcg_bound_app"
-FINAL_WASM_PATH=tcg_bound/${OUT_FILE_NAME}_bg.wasm
+OUT_FILE_NAME="tcg-bound_app"
+FINAL_WASM_PATH=tcg-bound_app/${OUT_FILE_NAME}_bg.wasm
 
 # Clear output from old stuff:
 rm -f "$FINAL_WASM_PATH"
@@ -76,7 +76,7 @@ TARGET="target"
 echo "Generating JS bindings for wasm…"
 TARGET_NAME="${CRATE_NAME}.wasm"
 WASM_PATH="${TARGET}/wasm32-unknown-unknown/$BUILD/$TARGET_NAME"
-wasm-bindgen "$WASM_PATH" --out-dir tcg_bound --out-name "$OUT_FILE_NAME" --no-modules --no-typescript
+wasm-bindgen "$WASM_PATH" --out-dir tcg-bound_app --out-name "$OUT_FILE_NAME" --no-modules --no-typescript
 
 # if this fails with "error: cannot import from modules (`env`) with `--no-modules`", you can use:
 # wasm2wat target/wasm32-unknown-unknown/release/egui_demo_app.wasm | rg env
