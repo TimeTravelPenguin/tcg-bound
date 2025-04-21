@@ -63,14 +63,11 @@ rm -f "$FINAL_WASM_PATH"
 
 echo "Building rust…"
 
-(
-  cd crates/"$CRATE_NAME" &&
-    cargo build \
-      "$BUILD_FLAGS" \
-      --quiet \
-      --lib \
-      --target wasm32-unknown-unknown
-)
+cargo build \
+  "$BUILD_FLAGS" \
+  --quiet \
+  --lib \
+  --target wasm32-unknown-unknown
 
 # Get the output directory (in the workspace it is in another location)
 # TARGET=`cargo metadata --format-version=1 | jq --raw-output .target_directory`
