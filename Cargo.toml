@@ -1,8 +1,11 @@
 [package]
 name = "tcg-bound"
 version = "0.1.0"
-edition = "2024"
+# edition = "2024"
+edition = "2021"
 description = "A tool to help organise TCG binders."
+authors = ["Phillip Smith <TimeTravelPenguin@gmail.com>"]
+include = ["LICENSE-APACHE", "LICENSE-MIT", "**/*.rs", "Cargo.toml"]
 
 [dependencies]
 catppuccin-egui = { version = "5.5.0", default-features = false, features = [
