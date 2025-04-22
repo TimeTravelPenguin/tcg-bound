@@ -2,13 +2,22 @@
 #[derive(PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct App {
-    pub max: i32,
-    pub value: i32,
+    pub value: u32,
+    pub max_value: u32,
+    pub rows: u16,
+    pub cols: u16,
+    pub pages: u16,
 }
 
 impl Default for App {
     fn default() -> Self {
-        Self { max: 256, value: 1 }
+        Self {
+            value: 1,
+            max_value: 300,
+            rows: 3,
+            cols: 3,
+            pages: 20,
+        }
     }
 }
 
@@ -62,24 +71,79 @@ impl eframe::App for App {
             // The central panel the region left after adding TopPanel's and SidePanel's
             ui.heading("TCG Bound");
 
-            ui.horizontal(|ui| {
-                ui.label("Max: ");
-                ui.add(egui::DragValue::new(&mut self.max).range(1..=i32::MAX));
-            });
+            let ui_builder = egui::UiBuilder::new();
+            ui.scope_builder(ui_builder, |ui| {
+                egui::Grid::new("central_grid_opts")
+                    .num_columns(2)
+                    .spacing([10.0, 10.0])
+                    .striped(true)
+                    .show(ui, |ui| {
+                        ui.label("Rows: ");
+                        ui.add(egui::DragValue::new(&mut self.rows).range(1..=u16::MAX));
 
-            ui.horizontal(|ui| {
-                ui.label("Card Number: ");
-                ui.add(egui::Slider::new(&mut self.value, 1..=self.max));
+                        ui.end_row();
+
+                        ui.label("Columns: ");
+                        ui.add(egui::DragValue::new(&mut self.cols).range(1..=u16::MAX));
+
+                        ui.end_row();
+
+                        ui.label("Pages: ");
+                        ui.add(egui::DragValue::new(&mut self.pages).range(1..=u16::MAX));
+
+                        ui.end_row();
+
+                        ui.label("Max Value: ");
+                        ui.add(egui::DragValue::new(&mut self.max_value).range(1..=u32::MAX));
+
+                        ui.end_row();
+                    });
+
+                ui.separator();
+
+                ui.horizontal(|ui| {
+                    ui.label("Card Number: ");
+                    ui.add(egui::Slider::new(&mut self.value, 1..=self.max_value));
+
+                    ui.end_row();
+
+                    if ui.button("  +1  ").clicked() {
+                        self.value = self.value.saturating_add(1).min(self.max_value);
+                    }
+
+                    if ui.button("  -1  ").clicked() {
+                        self.value = self.value.saturating_sub(1).max(1);
+                    }
+
+                    ui.end_row();
+                })
             });
 
             ui.separator();
 
-            ui.add(egui::github_link_file!(
-                "https://github.com/TimeTravelPenguin/tcg-bound/blob/main/",
-                "Source code."
-            ));
+            ui.vertical(|ui| {
+                ui.label("Card binder location: ");
+
+                let page_slots = (self.rows * self.cols) as u32;
+                let page = self.value.div_euclid(page_slots) + 1;
+                ui.horizontal(|ui| {
+                    ui.label("Page: ");
+                    ui.label(format!("{}/{}", page, self.pages));
+                });
+
+                ui.horizontal(|ui| {
+                    ui.label("Slot: ");
+                    ui.label(format!("{}/{}", self.value % page_slots, page_slots));
+                });
+            });
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+                use egui::special_emojis::GITHUB;
+                ui.add(egui::github_link_file!(
+                    "https://github.com/TimeTravelPenguin/tcg-bound/blob/main/",
+                    format!("{GITHUB} Source code")
+                ));
+
                 egui::warn_if_debug_build(ui);
             });
         });
