@@ -133,7 +133,11 @@ impl eframe::App for App {
 
                 ui.horizontal(|ui| {
                     ui.label("Slot: ");
-                    ui.label(format!("{}/{}", self.value % page_slots, page_slots));
+                    ui.label(format!(
+                        "{}/{}",
+                        1 + (self.value - 1) % page_slots, // shift to 1-based index
+                        page_slots
+                    ));
                 });
             });
 
