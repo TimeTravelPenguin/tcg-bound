@@ -38,12 +38,6 @@ impl SlotIndex {
         SlotIndex(n)
     }
 
-    /// Convert back to a 1-based CardNumber (for display).
-    pub fn to_card_number(self) -> CardNumber {
-        // unwrap is safe because slot < capacity => +1 <= capacity
-        CardNumber(NonZeroU32::new(self.0 + 1).unwrap())
-    }
-
     /// Extract the raw 0-based value.
     pub fn get(self) -> u32 {
         self.0
@@ -63,27 +57,11 @@ mod tests {
     }
 
     #[test]
-    fn test_slot_index() {
-        assert_eq!(SlotIndex(0).to_card_number().get(), 1);
-        assert_eq!(SlotIndex(9).to_card_number().get(), 10);
-    }
-
-    #[test]
     fn test_zero_based_conversion() {
         let max = 10;
         for n in 1..=max {
             let cn = CardNumber::try_new(n, max).unwrap();
             assert_eq!(cn.to_index().get(), n - 1);
-        }
-    }
-
-    #[test]
-    fn test_round_trip() {
-        let max = 10;
-        for n in 1..=max {
-            let cn = CardNumber::try_new(n, max).unwrap();
-            let idx = cn.to_index();
-            assert_eq!(idx.to_card_number().get(), n);
         }
     }
 }
