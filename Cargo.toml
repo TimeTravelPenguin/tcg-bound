@@ -8,6 +8,7 @@ authors = ["Phillip Smith <TimeTravelPenguin@gmail.com>"]
 include = ["LICENSE-APACHE", "LICENSE-MIT", "**/*.rs", "Cargo.toml"]
 
 [dependencies]
+anyhow = "1.0.98"
 catppuccin-egui = { version = "5.5.0", default-features = false, features = [
   "egui31",
 ] }
