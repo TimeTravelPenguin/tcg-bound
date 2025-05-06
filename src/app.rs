@@ -6,7 +6,7 @@ use crate::{
 };
 use egui::{Button, Label, Slider, Ui, Vec2, Widget};
 use egui_extras::{Column, TableBuilder};
-use egui_flex::{item, Flex, FlexAlignContent};
+use egui_flex::{item, Flex};
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -43,91 +43,91 @@ impl App {
     }
 }
 
-fn settings_table(ui: &mut Ui, app: &mut App) -> anyhow::Result<()> {
-    TableBuilder::new(ui)
-        .column(Column::auto().resizable(false))
-        .column(Column::remainder())
-        .header(20.0, |mut header| {
-            header.col(|ui| {
-                ui.horizontal(|ui| {
-                    ui.heading("Settings");
-                    ui.add_space(20.0);
-                });
-            });
+fn settings_table(ui: &mut Ui, app: &mut App) {
+    ui.collapsing("Settings", |ui| {
+        TableBuilder::new(ui)
+            .column(Column::auto().resizable(false))
+            .column(Column::remainder())
+            // .header(20.0, |mut header| {
+            //     header.col(|ui| {
+            //         ui.horizontal(|ui| {
+            //             ui.heading("Settings");
+            //             ui.add_space(20.0);
+            //         });
+            //     });
+            //
+            //     header.col(|ui| {
+            //         ui.heading("Value");
+            //     });
+            // })
+            .body(|mut body| {
+                body.row(20.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label("Rows");
+                    });
 
-            header.col(|ui| {
-                ui.heading("Value");
-            });
-        })
-        .body(|mut body| {
-            body.row(20.0, |mut row| {
-                row.col(|ui| {
-                    ui.label("Rows");
-                });
-
-                let mut rows = app.binder.rows();
-                row.col(|ui| {
-                    if ui
-                        .add(egui::DragValue::new(&mut rows).range(1..=u16::MAX))
-                        .changed()
-                    {
-                        let prev_state = app.binder;
-                        if app.binder.set_rows(rows).is_err() {
-                            app.binder = prev_state;
+                    let mut rows = app.binder.rows();
+                    row.col(|ui| {
+                        if ui
+                            .add(egui::DragValue::new(&mut rows).range(1..=u16::MAX))
+                            .changed()
+                        {
+                            let prev_state = app.binder;
+                            if app.binder.set_rows(rows).is_err() {
+                                app.binder = prev_state;
+                            }
                         }
-                    }
-                });
-            });
-
-            body.row(20.0, |mut row| {
-                row.col(|ui| {
-                    ui.label("Columns");
+                    });
                 });
 
-                let mut cols = app.binder.cols();
-                row.col(|ui| {
-                    if ui
-                        .add(egui::DragValue::new(&mut cols).range(1..=u16::MAX))
-                        .changed()
-                    {
-                        let prev_state = app.binder;
-                        if app.binder.set_cols(cols).is_err() {
-                            app.binder = prev_state;
+                body.row(20.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label("Columns");
+                    });
+
+                    let mut cols = app.binder.cols();
+                    row.col(|ui| {
+                        if ui
+                            .add(egui::DragValue::new(&mut cols).range(1..=u16::MAX))
+                            .changed()
+                        {
+                            let prev_state = app.binder;
+                            if app.binder.set_cols(cols).is_err() {
+                                app.binder = prev_state;
+                            }
                         }
-                    }
-                });
-            });
-
-            body.row(20.0, |mut row| {
-                row.col(|ui| {
-                    ui.label("Pages");
+                    });
                 });
 
-                let mut pages = app.binder.pages();
-                row.col(|ui| {
-                    if ui
-                        .add(egui::DragValue::new(&mut pages).range(1..=u16::MAX))
-                        .changed()
-                    {
-                        let prev_state = app.binder;
-                        if app.binder.set_pages(pages).is_err() {
-                            app.binder = prev_state;
+                body.row(20.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label("Pages");
+                    });
+
+                    let mut pages = app.binder.pages();
+                    row.col(|ui| {
+                        if ui
+                            .add(egui::DragValue::new(&mut pages).range(1..=u16::MAX))
+                            .changed()
+                        {
+                            let prev_state = app.binder;
+                            if app.binder.set_pages(pages).is_err() {
+                                app.binder = prev_state;
+                            }
                         }
-                    }
+                    });
+                });
+
+                body.row(20.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label("Max Value");
+                    });
+                    row.col(|ui| {
+                        ui.add(egui::DragValue::new(&mut app.max_value).range(1..=u16::MAX));
+                    });
                 });
             });
-
-            body.row(20.0, |mut row| {
-                row.col(|ui| {
-                    ui.label("Max Value");
-                });
-                row.col(|ui| {
-                    ui.add(egui::DragValue::new(&mut app.max_value).range(1..=u16::MAX));
-                });
-            });
-        });
-
-    Ok(())
+    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -237,17 +237,21 @@ impl eframe::App for App {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("TCG Bound");
 
-            settings_table(ui, self).expect("Failed to create settings table");
+            settings_table(ui, self);
 
             ui.separator();
 
-            Flex::vertical().show(ui, |flex| {
-                flex.add(item().shrink(), Label::new("Card Number:"));
+            Flex::vertical().grow_items(1.0).show(ui, |flex| {
+                flex.add(
+                    item().shrink().align_self(egui_flex::FlexAlign::Start),
+                    Label::new("Card Number:"),
+                );
 
+                let slider_width = 100.0;
                 let mut slider_value = self.value.get();
                 if flex
                     .add(
-                        item(),
+                        item().grow(1.0).min_width(slider_width),
                         Slider::new(&mut slider_value, 1..=self.max_value.get()),
                     )
                     .changed()
@@ -259,13 +263,11 @@ impl eframe::App for App {
                 }
 
                 flex.add_flex(
-                    item().grow(1.0),
-                    Flex::horizontal()
-                        .width(200.0)
-                        .align_content(FlexAlignContent::Stretch),
+                    item(),
+                    Flex::horizontal().grow_items(1.0).w_full(),
                     |flex| {
                         if flex
-                            .add(item().min_height(20.0), Button::new("-1"))
+                            .add(item().min_height(30.0), Button::new("-1"))
                             .clicked()
                         {
                             self.value = CardNumber::try_new(
@@ -276,7 +278,7 @@ impl eframe::App for App {
                         }
 
                         if flex
-                            .add(item().min_height(20.0), Button::new("+1"))
+                            .add(item().min_height(30.0), Button::new("+1"))
                             .clicked()
                         {
                             self.value = CardNumber::try_new(
@@ -288,7 +290,7 @@ impl eframe::App for App {
                     },
                 );
 
-                if flex.add(item().grow(1.0), Button::new("Reset")).clicked() {
+                if flex.add(item(), Button::new("Reset")).clicked() {
                     self.value = CardNumber::try_new(1, self.max_value.get())
                         .expect("Default value should be 1");
                 }
@@ -321,6 +323,36 @@ impl eframe::App for App {
                 ui.separator();
                 card_table("visual_table_right", ui, self, CardTable::Right);
             });
+
+            // Flex::horizontal().show(ui, |flex| {
+            //     flex.add_flex(item(), Flex::vertical(), |flex| {
+            //         flex.add_ui(item(), |ui| {
+            //             card_table("visual_table_left", ui, self, CardTable::Left);
+            //         });
+            //
+            //         flex.add(
+            //             item().shrink().align_self(egui_flex::FlexAlign::Start),
+            //             Label::new("Left Page"),
+            //         );
+            //     });
+            //
+            //     flex.add_ui(item().align_self_content(egui::Align2::CENTER_TOP), |ui| {
+            //         ui.separator();
+            //     });
+            //
+            //     flex.add_flex(item(), Flex::vertical(), |flex| {
+            //         flex.add_ui(item(), |ui| {
+            //             card_table("visual_table_right", ui, self, CardTable::Right);
+            //         });
+            //
+            //         flex.add(
+            //             item().shrink().align_self(egui_flex::FlexAlign::Start),
+            //             Label::new("Right Page"),
+            //         );
+            //     });
+            // });
+
+            ui.allocate_space(ui.available_size());
         });
     }
 }
