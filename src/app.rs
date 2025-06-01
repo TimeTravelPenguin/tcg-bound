@@ -162,8 +162,10 @@ fn card_table(id: &str, ui: &mut Ui, app: &mut App, page_side: CardTable) {
 
                     // Check if the current user-selected card slot is on the correct page
                     let correct_page = match page_side {
-                        CardTable::Left => page_offset % 2 == 0,
-                        CardTable::Right => page_offset % 2 == 1,
+                        // Page 1 starts on the left side, Page 2 starts on the right side,
+                        // so the modulo seems to be inverted
+                        CardTable::Left => page_offset % 2 == 1,
+                        CardTable::Right => page_offset % 2 == 0,
                     };
 
                     let current_slot_selected =
