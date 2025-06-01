@@ -269,6 +269,34 @@ impl eframe::App for App {
                     Flex::horizontal().grow_items(1.0).w_full(),
                     |flex| {
                         if flex
+                            .add(item().min_height(30.0), Button::new("-10"))
+                            .clicked()
+                        {
+                            self.value = CardNumber::try_new(
+                                self.value.get().saturating_sub(10),
+                                self.max_value.get(),
+                            )
+                            .unwrap_or(self.value);
+                        }
+
+                        if flex
+                            .add(item().min_height(30.0), Button::new("+10"))
+                            .clicked()
+                        {
+                            self.value = CardNumber::try_new(
+                                self.value.get().saturating_add(10),
+                                self.max_value.get(),
+                            )
+                            .unwrap_or(self.value);
+                        }
+                    },
+                );
+
+                flex.add_flex(
+                    item(),
+                    Flex::horizontal().grow_items(1.0).w_full(),
+                    |flex| {
+                        if flex
                             .add(item().min_height(30.0), Button::new("-1"))
                             .clicked()
                         {
