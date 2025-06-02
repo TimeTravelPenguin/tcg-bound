@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::num::NonZeroU32;
 
 use crate::card_number::{CardNumber, SlotIndex};
